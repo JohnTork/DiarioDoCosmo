@@ -5,9 +5,11 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "test": "tsx --test test/nasaService.test.ts test/apodController.test.ts"
   },
   "dependencies": {
+    "dotenv": "^18.0.10",
     "express": "^5.3.0"
   },
   "devDependencies": {
