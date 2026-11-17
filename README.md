@@ -25,7 +25,7 @@ cd ../frontend
 npm install
 ```
 
-Crie `backend/.env` a partir de `backend/.env.example` e preencha
+Crie `.env` na raiz do projeto a partir de `.env.example` e preencha
 `NASA_API_KEY` com sua chave da NASA. Não versione o arquivo `.env`.
 
 ## Executar em desenvolvimento
@@ -82,16 +82,17 @@ frontend/
   index.html
 ```
 
-Configure a variável `NASA_API_KEY` no arquivo `backend/.env`; arquivos `.env`
+Configure a variável `NASA_API_KEY` no arquivo `.env` da raiz; arquivos `.env`
 são ignorados pelo Git. Não coloque credenciais no frontend.
 
 ## Endpoint APOD do backend
 
 O backend disponibiliza `GET http://localhost:3001/api/apod`. O parâmetro
 `date` é opcional e deve usar o formato `YYYY-MM-DD`, entre `1995-06-16` e a
-data atual. Sem o parâmetro, a consulta solicita a publicação do dia.
+data atual no fuso horário de Nova York, alinhado ao calendário da publicação
+da NASA. Sem o parâmetro, a consulta solicita a publicação do dia.
 
-Configure `NASA_API_KEY` em `backend/.env`; a chave é usada somente no servidor
+Configure `NASA_API_KEY` no `.env` da raiz; a chave é usada somente no servidor
 e não é enviada ao frontend. O backend valida a data e aplica timeout na
 requisição à NASA.
 
@@ -115,7 +116,7 @@ npm test
 ## Funcionalidades disponíveis
 
 - Carrega o conteúdo APOD para a data atual e permite escolher outra data
-  desde 16/06/1995.
+  no formato dia/mês/ano, desde 16/06/1995.
 - Apresenta título, data, explicação, créditos e a imagem ou o vídeo.
 - Exibe estados de carregamento e erro, com opção para tentar novamente.
 - Cancela a consulta anterior quando a data muda, evitando que respostas

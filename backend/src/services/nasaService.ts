@@ -1,5 +1,5 @@
 const NASA_APOD_URL = "https://api.nasa.gov/planetary/apod";
-const REQUEST_TIMEOUT_MS = 10_000;
+const REQUEST_TIMEOUT_MS = 15_000;
 
 export interface ApodResponse {
   date: string;

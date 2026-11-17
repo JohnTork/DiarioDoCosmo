@@ -43,9 +43,20 @@ test("rejeita datas fora do formato ou do intervalo APOD", async () => {
 
   try {
     await withServer(async (baseUrl) => {
-      const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000)
-        .toISOString()
-        .slice(0, 10);
+      const currentDateParts = new Intl.DateTimeFormat("en-US", {
+        day: "2-digit",
+        month: "2-digit",
+        timeZone: "America/New_York",
+        year: "numeric",
+      }).formatToParts(new Date());
+      const year = currentDateParts.find((part) => part.type === "year")?.value;
+      const month = currentDateParts.find((part) => part.type === "month")?.value;
+      const day = currentDateParts.find((part) => part.type === "day")?.value;
+      assert.ok(year && month && day);
+
+      const tomorrowDate = new Date(`${year}-${month}-${day}T00:00:00.000Z`);
+      tomorrowDate.setUTCDate(tomorrowDate.getUTCDate() + 1);
+      const tomorrow = tomorrowDate.toISOString().slice(0, 10);
       const invalidDates = ["not-a-date", "1995-06-15", "2026-02-30", tomorrow];
 
       for (const date of invalidDates) {

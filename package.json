@@ -1,0 +1,23 @@
+{
+  "name": "diariodocosmo",
+  "version": "1.0.0",
+  "description": "vericar o cosmo",
+  "homepage": "https://github.com/JohnTork/DiarioDoCosmo#readme",
+  "bugs": {
+    "url": "https://github.com/JohnTork/DiarioDoCosmo/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JohnTork/DiarioDoCosmo.git"
+  },
+  "license": "ISC",
+  "author": "John Tork",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.3.0"
+  }
+}

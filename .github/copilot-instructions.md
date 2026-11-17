@@ -65,8 +65,6 @@ nasa-apod/
 │   │   │   └── apodRoutes.ts
 │   │   ├── app.ts
 │   │   └── server.ts
-│   ├── .env
-│   ├── .env.example
 │   └── package.json
 │
 ├── frontend/
@@ -88,6 +86,8 @@ nasa-apod/
 │   └── package.json
 │
 ├── .gitignore
+├── .env
+├── .env.example
 └── README.md
 
 Responsabilidades do backend
@@ -245,7 +245,7 @@ Apresentar mensagens de erro acessíveis.
 A segurança da chave da NASA é obrigatória.
 
 Proteção da chave
-Armazenar a chave exclusivamente no arquivo backend/.env.
+Armazenar a chave exclusivamente no arquivo .env da raiz do projeto.
 Utilizar a variável NASA_API_KEY.
 Nunca escrever a chave diretamente no código.
 Nunca enviar a chave ao frontend.
