@@ -34,7 +34,7 @@ test("rejeita datas fora do formato ou do intervalo APOD", async () => {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async (input, init) => {
     const url = new URL(input instanceof Request ? input.url : input.toString());
-    if (url.hostname === "api.nasa.gov") {
+    if (url.hostname === "science.nasa.gov") {
       throw new Error("A API externa não deveria ser chamada.");
     }
 
@@ -77,8 +77,8 @@ test("aceita a data inicial disponível na NASA", async () => {
   process.env.NASA_API_KEY = "test-api-key";
   globalThis.fetch = async (input, init) => {
     const url = new URL(input instanceof Request ? input.url : input.toString());
-    if (url.hostname === "api.nasa.gov") {
-      assert.equal(url.searchParams.get("date"), "1995-06-16");
+    if (url.hostname === "science.nasa.gov") {
+      assert.equal(url.pathname, "/wp-json/wp/v2/apod-basic/950616");
       return new Response(
         JSON.stringify({
           date: "1995-06-16",

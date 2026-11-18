@@ -1,4 +1,5 @@
-const NASA_APOD_URL = "https://api.nasa.gov/planetary/apod";
+const NASA_APOD_URL =
+  "https://science.nasa.gov/wp-json/wp/v2/apod-basic/";
 const REQUEST_TIMEOUT_MS = 15_000;
 
 export interface ApodResponse {
@@ -73,7 +74,45 @@ function httpsUrl(value: unknown, required: boolean): string | null {
   }
 }
 
+function plainText(value: string): string {
+  return value
+    .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, "")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(p|div|li|h[1-6])\s*>/gi, "\n")
+    .replace(/<[^>]*>/g, "")
+    .replace(/&#(\d+);/g, (entity, code: string) => {
+      const codePoint = Number(code);
+      return codePoint <= 0x10ffff &&
+        !(codePoint >= 0xd800 && codePoint <= 0xdfff)
+        ? String.fromCodePoint(codePoint)
+        : entity;
+    })
+    .replace(/&#x([0-9a-f]+);/gi, (entity, code: string) => {
+      const codePoint = Number.parseInt(code, 16);
+      return codePoint <= 0x10ffff &&
+        !(codePoint >= 0xd800 && codePoint <= 0xdfff)
+        ? String.fromCodePoint(codePoint)
+        : entity;
+    })
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&quot;/gi, '"')
+    .replace(/&apos;|&#39;/gi, "'")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&amp;/gi, "&")
+    .replace(/^\s*(?:Explanation:\s*)+/i, "")
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n[ \t]+/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 function normalizeApod(payload: unknown): ApodResponse {
+  if (Array.isArray(payload)) {
+    payload = payload[0];
+  }
+
   if (!isRecord(payload)) {
     throw new ApodServiceError(
       "A API da NASA retornou dados inválidos.",
@@ -89,16 +128,22 @@ function normalizeApod(payload: unknown): ApodResponse {
     );
   }
 
+  const isApodBasic = typeof payload.permalink === "string";
+  const imageUrl =
+    mediaType === "image" && isApodBasic
+      ? payload.hdurl
+      : payload.url ?? payload.hdurl;
+
   return {
     date: requiredString(payload, "date"),
     title: requiredString(payload, "title"),
-    explanation: requiredString(payload, "explanation"),
+    explanation: plainText(requiredString(payload, "explanation")),
     media_type: mediaType,
-    url: httpsUrl(payload.url, true),
+    url: httpsUrl(imageUrl, true),
     hdurl: httpsUrl(payload.hdurl, false),
     copyright:
       typeof payload.copyright === "string" && payload.copyright.trim() !== ""
-        ? payload.copyright
+        ? plainText(payload.copyright)
         : null,
   };
 }
@@ -112,11 +157,9 @@ export async function getApod(date?: string): Promise<ApodResponse> {
     );
   }
 
-  const requestUrl = new URL(NASA_APOD_URL);
+  const datePath = date ? date.slice(2).replace(/-/g, "") : "";
+  const requestUrl = new URL(datePath, NASA_APOD_URL);
   requestUrl.searchParams.set("api_key", apiKey);
-  if (date) {
-    requestUrl.searchParams.set("date", date);
-  }
 
   let response: Response;
   try {

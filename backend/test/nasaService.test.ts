@@ -44,6 +44,36 @@ test("normaliza os campos opcionais ausentes como null", async () => {
   assert.equal(apod.copyright, null);
 });
 
+test("normaliza o formato atual, usando a imagem e a descrição da NASA", async () => {
+  let requestUrl: URL | undefined;
+  globalThis.fetch = async (input) => {
+    requestUrl = new URL(input instanceof Request ? input.url : input.toString());
+    return nasaResponse({
+      date: "2026-11-18",
+      title: "Uma erupção solar",
+      permalink: "https://science.nasa.gov/image-article/apod/",
+      media_type: "image",
+      explanation:
+        "<strong>Explanation:</strong> Uma <a href=\"https://example.test\">imagem</a>, do Sol &amp; da sua atmosfera.",
+      url: "https://science.nasa.gov/image-article/apod/",
+      hdurl: "https://assets.science.nasa.gov/apod.jpg",
+      copyright: "<a href=\"https://example.test\">Crédito NASA</a>",
+    });
+  };
+
+  const apod = await getApod("2026-11-18");
+
+  assert.equal(requestUrl?.pathname, "/wp-json/wp/v2/apod-basic/261118");
+  assert.equal(requestUrl?.searchParams.get("date"), null);
+  assert.equal(requestUrl?.searchParams.get("api_key"), "test-api-key");
+  assert.equal(apod.url, "https://assets.science.nasa.gov/apod.jpg");
+  assert.equal(
+    apod.explanation,
+    "Uma imagem, do Sol & da sua atmosfera.",
+  );
+  assert.equal(apod.copyright, "Crédito NASA");
+});
+
 test("rejeita uma resposta sem os campos APOD obrigatórios", async () => {
   globalThis.fetch = async () =>
     nasaResponse({
@@ -52,6 +82,16 @@ test("rejeita uma resposta sem os campos APOD obrigatórios", async () => {
       media_type: "image",
       url: "https://images.example.test/apod.jpg",
     });
+
+  await assert.rejects(
+    getApod("2025-01-02"),
+    (error: unknown) =>
+      error instanceof ApodServiceError && error.statusCode === 502,
+  );
+});
+
+test("rejeita uma lista vazia da nova API", async () => {
+  globalThis.fetch = async () => nasaResponse([]);
 
   await assert.rejects(
     getApod("2025-01-02"),

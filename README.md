@@ -90,7 +90,15 @@ são ignorados pelo Git. Não coloque credenciais no frontend.
 O backend disponibiliza `GET http://localhost:3001/api/apod`. O parâmetro
 `date` é opcional e deve usar o formato `YYYY-MM-DD`, entre `1995-06-16` e a
 data atual no fuso horário de Nova York, alinhado ao calendário da publicação
-da NASA. Sem o parâmetro, a consulta solicita a publicação do dia.
+da NASA. A comunicação é feita pelo endpoint APOD atual da NASA Science
+(`https://science.nasa.gov/wp-json/wp/v2/apod-basic/`); o backend adapta sua
+resposta em lista para um objeto consistente e usa o endereço da imagem em
+alta resolução quando a API apresenta uma página de artigo no campo `url`.
+Descrições e créditos são convertidos em texto antes de serem enviados ao
+frontend. Para uma data selecionada, o backend usa o formato `YYMMDD` no
+caminho da API (por exemplo, `2026-11-13` vira `261113`), pois o endpoint
+ignora o parâmetro `date` na query string. Sem o parâmetro, a consulta solicita
+a publicação mais recente.
 
 Configure `NASA_API_KEY` no `.env` da raiz; a chave é usada somente no servidor
 e não é enviada ao frontend. O backend valida a data e aplica timeout na
